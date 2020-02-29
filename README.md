@@ -16,7 +16,7 @@ Methods (Sequencing analysis) :
 4. Duplicate reads will be marked by Picard tools
 5. local realignment and base recalibration will be conducted with GATK
 6. Joint variant calling using HaplotypeCaller
-7- Split SNPs and indels
-8- Assess the different filters in both known and novel to decide the threshould for the filteration in each filter 
-9-SNP Variant filteration
-10- separate the passed SNPs in a vcf file
+7. Split SNPs and indels
+8. Assess the different filters in both known and novel to decide the threshould for the filteration in each filter.
+9. SNP Variant filteration
+10.separate the passed SNPs in a vcf file
