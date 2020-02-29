@@ -19,4 +19,4 @@ Methods (Sequencing analysis) :
 7. Split SNPs and indels
 8. Assess the different filters in both known and novel to decide the threshould for the filteration in each filter.
 9. SNP Variant filteration
-10.separate the passed SNPs in a vcf file
+10. separate the passed SNPs in a vcf file
