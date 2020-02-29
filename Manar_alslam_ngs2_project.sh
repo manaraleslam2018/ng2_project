@@ -1,23 +1,3 @@
-The custom library designed comprised of the ERBB-family genes and included 132 regions. The total library size was 50 kbp, with average coverage of 98.87%. The custom library included coding exons of the target genes. The constructed libraries were sequenced using an Illumina MiSeq Sequencer.
-ERBB family includs 4 genes: 
-Her1 (EGFR, ErbB1), Her2 (Neu, ErbB2), Her3 (ErbB3), 
-locations to genes to know what is the chromosomes that I should downlod as a reference:
-
-ERBB2 gene Location: 17q12, which is the long (q) arm of chromosome 17 
-
-ERBB3 gene Location: 12q13.2, which is the long (q) arm of chromosome 12
-
-ERBB1 HER1  Cytogenetic Location: 7p11.2, which is the short (p) arm of chromosome 7
-ERBB4 gene Cytogenetic Location: 2q34, which is the long (q) arm of chromosome 2 
-
-##choosing the reference fasta file 
-I was confused between different fasta files to use as a refernec. To choose the fasta file which I can use for alignment,
-I searched and found that I should avoid  any file with "rm" in the name but I can use the files with "sm" in the name are "soft masked" or without masking. 
-the answer available in these websites:
-http://genomespot.blogspot.com/2015/06/mapping-ngs-data-which-genome-version.html
-#decision the best alligner is bwa based on this study (https://www.biorxiv.org/content/10.1101/359109v1.full.pdf) 
-
-
 1- download data 
 '''
 mkdir /home/manar/ngs2_project/Breast_cancer_samples && cd /home/manar/ngs2_project/Breast_cancer_samples
