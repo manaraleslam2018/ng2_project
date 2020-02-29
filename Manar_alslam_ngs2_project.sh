@@ -3,8 +3,9 @@
 mkdir /home/manar/ngs2_project/Breast_cancer_samples && cd /home/manar/ngs2_project/Breast_cancer_samples
 
 wget -c ftp://ftp-trace.ncbi.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR730/SRR7309332/SRR7309332.sra
-
+wget -c ftp://ftp-trace.ncbi.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR730/SRR7309338/SRR7309338.sra
 fastq-dump --outdir . --gzip --split-3 SRR7309332.sra
+fastq-dump --outdir . --gzip --split-3 SRR7309338.sra
 '''
 
 2- download reference:
@@ -27,10 +28,11 @@ cat Homo_sapiens.GRCh38.dna_sm.chromosome.2.fa Homo_sapiens.GRCh38.dna_sm.chromo
 
 '''
 mkdir ~/ngs2_project/Breast_cancer_samples/FASTQC_sample1_2 && cd ~/ngs2_project/Breast_cancer_samples/FASTQC_sample1_2
-
-
 cp  /home/manar/ngs2_project/Breast_cancer_samples/SRR7309332_1.fastq.gz .
 cp  /home/manar/ngs2_project/Breast_cancer_samples/SRR7309332_2.fastq.gz .
+
+cp /home/manar/ngs2_project/Breast_cancer_samples/SRR7309338_1.fastq.gz .
+cp /home/manar/ngs2_project/Breast_cancer_samples/SRR7309338_2.fastq.gz .
 
 
 for f in ~/ngs2_project/Breast_cancer_samples/FASTQC_sample1_2/*.fastq.gz;do fastqc -t 1 -f fastq -noextract $f;done
@@ -63,6 +65,8 @@ B) renam the sample name to be seutable to gtak
 '''
 mv SRR7309332_1.fastq.gz SRR7309332_TGACCA_L001_R1.fastq.gz
 mv SRR7309332_2.fastq.gz SRR7309332_TGACCA_L001_R2.fastq.gz
+mv SRR7309338_1.fastq.gz SRR7309338_TAGCTT_L002_R1.fastq.gz   
+mv SRR7309338_2.fastq.gz SRR7309338_TAGCTT_L002_R2.fastq.gz
 '''
 C) Alligment 
 '''
