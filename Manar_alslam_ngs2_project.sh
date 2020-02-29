@@ -85,40 +85,48 @@ for R1 in ~/ngs2_project/Breast_cancer_samples/*_R1.fastq.gz;do
     bwa mem -t 4 -M -R "@RG\tID:$RGID\tSM:$SM\tPL:$PL\tLB:$LB\tPU:$PU" $index $R1 $R2 > $(basename $R1 _R1_001.pe.fq.gz).sam
 done
 '''
+#########from this step I worked each sample separately without for loop as the lab didnt work for a long time after aligment####
 D) statistics to sam file after aligment 
 '''
 samtools flagstat /home/manar/ngs2_project/GATK_varient_calling/SRR7309332_TGACCA_L001_R1.fastq.gz.sam > SRR7309332_TGACCA_L001_sam_stats.out
+samtools flagstat /home/manar/ngs2_project/GATK_varient_calling/SRR7309338_TAGCTT_L002_R1.fastq.gz.sam > SRR7309338_TAGCTT_L002_sam_stats.out
 '''
 E) rename file name 
 '''
 mv SRR7309332_TGACCA_L001_R1.fastq.gz.sam SRR7309332_TGACCA_L001.sam
+mv SRR7309338_TAGCTT_L002_R1.fastq.gz.sam SRR7309338_TAGCTT_L002.sam
 '''
 
 
-generate & sort BAM file
+4) generate & sort BAM file
 '''
 samtools view -hbo SRR7309332_TGACCA_L001.bam SRR7309332_TGACCA_L001.sam
 samtools sort SRR7309332_TGACCA_L001.bam -o SRR7309332_TGACCA_L001.sorted.bam
+samtools view -hbo SRR7309338_TAGCTT_L002.bam SRR7309338_TAGCTT_L002.sam
+samtools sort SRR7309338_TAGCTT_L002.bam -o SRR7309338_TAGCTT_L002.sorted.bam
 '''
 
-mapping QC
-'''
- samtools depth SRR7309332_TGACCA_L001.sorted.bam | awk '{{sum+=$3}} END {{print "Average = ",sum/NR, "No of covered Nuc = ", NR}}' > SRR7309332_TGACCA_L001.sorted.cov
-  samtools flagstat SRR7309332_TGACCA_L001.sorted.bam > SRR7309332_TGACCA_L001.sorted.stat
-'''
- samtools depth SRR7309332_TGACCA_L001.sorted.bam | head
-
-mark deduplicates
+5) mark deduplicates
+A) sample 1
 '''
 picard_path=$CONDA_PREFIX/share/picard-* ## 2.21.7-0
 java  -Xmx2g -jar $picard_path/picard.jar MarkDuplicates INPUT=SRR7309332_TGACCA_L001.sorted.bam OUTPUT= SRR7309332_TGACCA_L001.sorted.dedup.bam METRICS_FILE= SRR7309332_TGACCA_L001.sorted.bam.metrics.txt
-
 samtools flagstat SRR7309332_TGACCA_L001.sorted.dedup.bam > SRR7309332_TGACCA_L001.sorted.dedup.stat
 '''
-indexing to gtak variant calling 
-a) sample
+A) sample 2
+'''
+java  -Xmx2g -jar $picard_path/picard.jar MarkDuplicates INPUT=SRR7309338_TAGCTT_L002.sorted.bam OUTPUT=SRR7309338_TAGCTT_L002.sorted.dedup.bam METRICS_FILE= SRR7309332_TGACCA_L001.sorted.bam.metrics.txt
+samtools flagstat SRR7309338_TAGCTT_L002.sorted.dedup.bam > SRR7309338_TAGCTT_L002.sorted.dedup.stat
+'''
+
+6) indexing to gtak variant calling 
+A) sample 1
 '''
   java -Xmx2g -jar $picard_path/picard.jar BuildBamIndex VALIDATION_STRINGENCY=LENIENT INPUT=SRR7309332_TGACCA_L001.sorted.dedup.bam
+'''
+B) sample 2
+'''
+  java -Xmx2g -jar $picard_path/picard.jar BuildBamIndex VALIDATION_STRINGENCY=LENIENT INPUT=SRR7309338_TAGCTT_L002.sorted.dedup.bam
 '''
 b) reference 
 '''
@@ -126,15 +134,15 @@ ln -s ~/ngs2_project/bwa_align/bwaIndex/Homo_sapiens.GRCh38.dna_sm.chromosome2_7
 java -Xmx2g -jar $picard_path/picard.jar CreateSequenceDictionary R=Homo_sapiens.GRCh38.dna_sm.chromosome2_7_12_17.fa O=Homo_sapiens.GRCh38.dna_sm.chromosome2_7_12_17.dict
 samtools faidx Homo_sapiens.GRCh38.dna_sm.chromosome2_7_12_17.fa
 '''
-Download known varinats & concatenat them in  a onr filr and index this file: 
+7) Download known varinats & concatenat them in  a onr filr and index this file: 
 '''
 wget -c ftp://ftp.ensembl.org/pub/release-99/variation/vcf/homo_sapiens/homo_sapiens-chr2.vcf.gz
 wget -c ftp://ftp.ensembl.org/pub/release-99/variation/vcf/homo_sapiens/homo_sapiens-chr7.vcf.gz
 wget -c ftp://ftp.ensembl.org/pub/release-99/variation/vcf/homo_sapiens/homo_sapiens-chr12.vcf.gz
 wget -c ftp://ftp.ensembl.org/pub/release-99/variation/vcf/homo_sapiens/homo_sapiens-chr17.vcf.gz
+gunzip -k *.vcf.gz
 
 ###bcftools concat --output homo_sapiens-chr2_7_12_17.vcf homo_sapiens-chr2.vcf homo_sapiens-chr7.vcf homo_sapiens-chr12.vcf homo_sapiens-chr17.vcf 
-
 
 grep "^#" homo_sapiens-chr2.vcf > homo_sapiens-chr2_7_12_17.vcf
 grep "^2" homo_sapiens-chr2.vcf >> homo_sapiens-chr2_7_12_17.vcf
@@ -142,10 +150,10 @@ grep "^7" homo_sapiens-chr7.vcf >> homo_sapiens-chr2_7_12_17.vcf
 grep "^12" homo_sapiens-chr12.vcf >> homo_sapiens-chr2_7_12_17.vcf
 grep "^17" homo_sapiens-chr17.vcf >> homo_sapiens-chr2_7_12_17.vcf
 
-
 gatk IndexFeatureFile -I homo_sapiens-chr2_7_12_17.vcf
 '''
-recalibration 
+8) Recalibration 
+A) Sample 1
 '''
  gatk --java-options "-Xmx2G" BaseRecalibrator \
 -R Homo_sapiens.GRCh38.dna_sm.chromosome2_7_12_17.fa -I SRR7309332_TGACCA_L001.sorted.dedup.bam --known-sites homo_sapiens-chr2_7_12_17.vcf \
@@ -155,11 +163,22 @@ recalibration
 -R Homo_sapiens.GRCh38.dna_sm.chromosome2_7_12_17.fa -I SRR7309332_TGACCA_L001.sorted.dedup.bam -bqsr SRR7309332_TGACCA_L001.sorted.report \
 -O SRR7309332_TGACCA_L001.sorted.bqsr.bam --add-output-sam-program-record --emit-original-quals
 '''
-Joint variant calling using HaplotypeCaller
+B) Sample 2
+'''
+gatk --java-options "-Xmx2G" BaseRecalibrator \
+-R Homo_sapiens.GRCh38.dna_sm.chromosome2_7_12_17.fa -I SRR7309338_TAGCTT_L002.sorted.dedup.bam --known-sites homo_sapiens-chr2_7_12_17.vcf \
+-O SRR7309338_TAGCTT_L002.sorted.report
+
+ gatk --java-options "-Xmx2G" ApplyBQSR \
+-R Homo_sapiens.GRCh38.dna_sm.chromosome2_7_12_17.fa -I SRR7309338_TAGCTT_L002.sorted.dedup.bam -bqsr SRR7309338_TAGCTT_L002.sorted.report \
+-O SRR7309338_TAGCTT_L002.sorted.dedup.bqsr.bam --add-output-sam-program-record --emit-original-quals
+'''
+
+9) Joint variant calling using HaplotypeCaller
 
 Call germline SNPs and indels via local re-assembly of haplotypes
-
-## assess genotype likelihood per-sample
+A) assess genotype likelihood per-sample
+A.1) sample 1
 '''  
   gatk --java-options "-Xmx2G" HaplotypeCaller \
   -R Homo_sapiens.GRCh38.dna_sm.chromosome2_7_12_17.fa -I SRR7309332_TGACCA_L001.sorted.bqsr.bam \
@@ -167,7 +186,15 @@ Call germline SNPs and indels via local re-assembly of haplotypes
   --pcr-indel-model NONE \
   -O SRR7309332_TGACCA_L001.sorted.gvcf
 '''
-## combine samples
+A.2) sample 2
+'''
+  gatk --java-options "-Xmx2G" HaplotypeCaller \
+  -R Homo_sapiens.GRCh38.dna_sm.chromosome2_7_12_17.fa -I SRR7309338_TAGCTT_L002.sorted.dedup.bqsr.bam \
+  --emit-ref-confidence GVCF \
+  --pcr-indel-model NONE \
+  -O SRR7309338_TAGCTT_L002.sorted.gvcf
+'''
+B) combine samples
 '''
 gatk --java-options "-Xmx2G" CombineGVCFs \
 -R Homo_sapiens.GRCh38.dna_sm.chromosome2_7_12_17.fa \
@@ -176,7 +203,7 @@ gatk --java-options "-Xmx2G" CombineGVCFs \
 -O raw_variants.gvcf
 '''
 
-## Joint Genotyping
+C) Joint Genotyping
 '''
 gatk --java-options "-Xmx60G" GenotypeGVCFs \
 -R Homo_sapiens.GRCh38.dna_sm.chromosome2_7_12_17.fa \
@@ -184,7 +211,7 @@ gatk --java-options "-Xmx60G" GenotypeGVCFs \
 --max-alternate-alleles 3 \
 -O raw_variants.vcf
 '''
-## annotated output
+D) annotated output
 '''
 gatk --java-options "-Xmx60G" GenotypeGVCFs \
 -R Homo_sapiens.GRCh38.dna_sm.chromosome2_7_12_17.fa \
@@ -194,7 +221,7 @@ gatk --java-options "-Xmx60G" GenotypeGVCFs \
 -O raw_variants_ann.vcf
 '''
 
-Split SNPs and indels
+10) Split SNPs and indels
 '''
 gatk --java-options "-Xmx2G" SelectVariants \
 -R Homo_sapiens.GRCh38.dna_sm.chromosome2_7_12_17.fa \
@@ -209,9 +236,7 @@ gatk --java-options "-Xmx2G" SelectVariants \
 -O raw_variants_ann_INDEL.vcf
 '''
 
-
-
-SNP Variant filteration
+11) SNP Variant filteration
 '''
 cd ~/ngs2_project/GATK_varient_calling
 gatk --java-options "-Xmx2G" VariantFiltration \
