@@ -273,4 +273,4 @@ tabix -p vcf raw_variants_ann_SNP_clean_all_passed.vcf.gz
 rtg vcfstats raw_variants_ann_SNP_clean_all_passed.vcf.gz > raw_variants_ann_SNP_clean_all_passed.stats.txt
 '''
 
-functional annotation 
+functional annotation :
