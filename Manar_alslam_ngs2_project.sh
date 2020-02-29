@@ -310,7 +310,7 @@ download metadata
 sudo apt install ncbi-entrez-direct
 esearch -db sra -query SRR7309332 | efetch -format runinfo
 '''
-functional annotation : For germline data sources:
+functional annotation : For germline data sources: (https://gatkforums.broadinstitute.org/gatk/discussion/11193/funcotator-information-and-tutorial)
 '''
 ./gatk FuncotatorDataSourceDownloader --germline --validate-integrity --extract-after-download
 '''
