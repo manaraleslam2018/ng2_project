@@ -235,8 +235,36 @@ gatk --java-options "-Xmx2G" SelectVariants \
 --select-type-to-include INDEL \
 -O raw_variants_ann_INDEL.vcf
 '''
+11) VCF statitics
+'''
+bgzip -c raw_variants_ann.vcf > raw_variants_ann.vcf.gz
+tabix -p vcf raw_variants_ann.vcf.gz
+rtg vcfstats raw_variants_ann.vcf.gz > stats.txt
+'''
+11) Assess the different filters in both known and novel
 
-11) SNP Variant filteration
+'''
+for var in "SNP" "INDEL";do
+ input="raw_variants_ann_"$var".vcf"
+ for filter in "QD" "MQ" "MQRankSum" "FS" "SOR" "ReadPosRankSum" "AN" "DP" "InbreedingCoeff";do
+  filterValues=$var.$filter
+  awk -v k="$filter=" '!/#/{n=split($8,a,";"); for(i=1;i<=n;i++) if(a[i]~"^"k) {sub(k,$3" ",a[i]); print a[i]}}' $input > $filterValues
+  grep -v "^\." $filterValues > known.$var.$filter
+  grep "^\." $filterValues > novel.$var.$filter
+done;
+
+mkdir filters && cd filters
+mv ../{*.SNP.*,SNP.*,*.INDEL.*,INDEL.*} .
+
+wget https://raw.githubusercontent.com/dib-lab/dogSeq/master/scripts/densityCurves.R
+Rscript -e "install.packages('ggplot2', contriburl=contrib.url('http://cran.r-project.org/'))"
+for f in SNP.* INDEL.*;do
+  Rscript densityCurves.R "$f"
+done
+'''
+
+12) SNP Variant filteration
+
 '''
 cd ~/ngs2_project/GATK_varient_calling
 gatk --java-options "-Xmx2G" VariantFiltration \
@@ -258,28 +286,36 @@ gatk --java-options "-Xmx2G" VariantFiltration \
 --filter-expression "vc.hasAttribute('DP') && DP > 3105" \
 -O raw_variants_ann_SNP_clean.vcf
 '''
-##grep "^#"  raw_variants_ann_SNP_clean.vcf > raw_variants_ann_SNP_clean_passed_filter.vcf
-##grep -v "^#" raw_variants_ann_SNP_clean.vcf | awk '{if($7="PASS")print $0}' >> raw_variants_ann_SNP_clean_passed_filter.vcf
+13) extract all passed record in a new vcf
+
 '''
 vcftools --vcf raw_variants_ann_SNP_clean.vcf --remove-filtered-all --recode --recode-INFO-all --stdout > raw_variants_ann_SNP_clean_all_passed.vcf
 '''
-
-##grep -v "^#" raw_variants_ann_SNP_clean_all_passed.vcf | awk '{print $3}' | grep "^rs" | wc -l
-##vcftools --gzvcf raw_variants_ann_SNP_clean_all_passed.vcf --max-missing 0.5 --mac 3 --minQ 30 --recode --recode-INFO-all --out raw.g5mac3
-
-download metadata
-'''
-sudo apt install ncbi-entrez-direct
-esearch -db sra -query SRR7309332 | efetch -format runinfo
-'''
-
-
-vCF statitics to the passed file :
+14) VCF statitics to the passed file
 '''
 bgzip -c raw_variants_ann_SNP_clean_all_passed.vcf > raw_variants_ann_SNP_clean_all_passed.vcf.gz
 tabix -p vcf raw_variants_ann_SNP_clean_all_passed.vcf.gz
 
 rtg vcfstats raw_variants_ann_SNP_clean_all_passed.vcf.gz > raw_variants_ann_SNP_clean_all_passed.stats.txt
 '''
+15) extract known snps for further analysis in a text file:
+'''
+grep -v "^#" raw_variants_ann_SNP_clean_all_passed.vcf | awk '{print $3}' | grep "^rs" > raw_variants_ann_SNP_clean_all_passed.stats.txt
+'''
 
-functional annotation :
+############## I tried to download metadata and make functional annotation using FilterFuncotations in Gatk howewer;
+there is no metadata to SRA data & no enogh memory in lap & no enough time######
+download metadata
+'''
+sudo apt install ncbi-entrez-direct
+esearch -db sra -query SRR7309332 | efetch -format runinfo
+'''
+functional annotation : For germline data sources:
+'''
+./gatk FuncotatorDataSourceDownloader --germline --validate-integrity --extract-after-download
+'''
+##grep "^#"  raw_variants_ann_SNP_clean.vcf > raw_variants_ann_SNP_clean_passed_filter.vcf
+##grep -v "^#" raw_variants_ann_SNP_clean.vcf | awk '{if($7="PASS")print $0}' >> raw_variants_ann_SNP_clean_passed_filter.vcf
+
+##grep -v "^#" raw_variants_ann_SNP_clean_all_passed.vcf | awk'{if($3="rs")print $0}'
+##grep -v "^#" raw_variants_ann_SNP_clean_all_passed.vcf | awk '{print $3}' | grep "^rs" | wc -l
