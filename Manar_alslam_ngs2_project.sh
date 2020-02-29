@@ -17,7 +17,8 @@ wget -c ftp://ftp.ensembl.org/pub/release-99/fasta/homo_sapiens/dna/Homo_sapiens
 wget -c ftp://ftp.ensembl.org/pub/release-99/fasta/homo_sapiens/dna/Homo_sapiens.GRCh38.dna_sm.chromosome.12.fa.gz
 wget -c ftp://ftp.ensembl.org/pub/release-99/fasta/homo_sapiens/dna/Homo_sapiens.GRCh38.dna_sm.chromosome.17.fa.gz
 
-gunzip 
+gunzip -k *.fa.gz 
+
 cat Homo_sapiens.GRCh38.dna_sm.chromosome.2.fa Homo_sapiens.GRCh38.dna_sm.chromosome.7.fa Homo_sapiens.GRCh38.dna_sm.chromosome.12.fa Homo_sapiens.GRCh38.dna_sm.chromosome.17.fa > Homo_sapiens.GRCh38.dna_sm.chromosome2_7_12_17.fa
 '''
 
@@ -35,7 +36,7 @@ cp  /home/manar/ngs2_project/Breast_cancer_samples/SRR7309332_2.fastq.gz .
 for f in ~/ngs2_project/Breast_cancer_samples/FASTQC_sample1_2/*.fastq.gz;do fastqc -t 1 -f fastq -noextract $f;done
 '''
 
-3- aligment trial to check if the chromosoms are correct as a reference 
+3-BWA aligment 
  
 a) indixing the the genome refernce 
 
@@ -45,26 +46,25 @@ ln -s /home/manar/ngs2_project/Breast_cancer_samples/Homo_sapiens.GRCh38.dna_sm.
 bwa index -a bwtsw Homo_sapiens.GRCh38.dna_sm.chromosome2_7_12_17.fa
 '''
 
-b) aligment
-
+#aligment trial to check if the chromosoms are correct as a reference 
 '''
-cd ~/ngs2_project/bwa_align/
+#cd ~/ngs2_project/bwa_align/
 
-R1="/home/manar/ngs2_project/Breast_cancer_samples/SRR7309332_1.fastq.gz"
-R2="/home/manar/ngs2_project/Breast_cancer_samples/SRR7309332_2.fastq.gz"
+#R1="/home/manar/ngs2_project/Breast_cancer_samples/SRR7309332_1.fastq.gz"
+#R2="/home/manar/ngs2_project/Breast_cancer_samples/SRR7309332_2.fastq.gz"
 
-/usr/bin/time -v bwa mem bwaIndex/Homo_sapiens.GRCh38.dna_sm.chromosome2_7_12_17.fa $R1 $R2 > SRR7309332.sam
+#/usr/bin/time -v bwa mem bwaIndex/Homo_sapiens.GRCh38.dna_sm.chromosome2_7_12_17.fa $R1 $R2 > SRR7309332.sam
 
-samtools flagstat /home/manar/ngs2_project/bwa_align/SRR7309332.sam > bwa_alignment_sample${r}_stats.out
+#samtools flagstat /home/manar/ngs2_project/bwa_align/SRR7309332.sam > bwa_alignment_sample${r}_stats.out
 
 rename the sanples to make alligment 
 '''
-renam the sample name to be seutable to gtak 
+B) renam the sample name to be seutable to gtak 
 '''
 mv SRR7309332_1.fastq.gz SRR7309332_TGACCA_L001_R1.fastq.gz
 mv SRR7309332_2.fastq.gz SRR7309332_TGACCA_L001_R2.fastq.gz
 '''
-alligment 
+C) Alligment 
 '''
 mkdir -p ~/ngs2_project/GATK_varient_calling && cd ~/ngs2_project/GATK_varient_calling
 for R1 in ~/ngs2_project/Breast_cancer_samples/*_R1.fastq.gz;do
@@ -81,11 +81,11 @@ for R1 in ~/ngs2_project/Breast_cancer_samples/*_R1.fastq.gz;do
     bwa mem -t 4 -M -R "@RG\tID:$RGID\tSM:$SM\tPL:$PL\tLB:$LB\tPU:$PU" $index $R1 $R2 > $(basename $R1 _R1_001.pe.fq.gz).sam
 done
 '''
-see statistics of the alligment 
+D) statistics to sam file after aligment 
 '''
-samtools flagstat /home/manar/ngs2_project/GATK_varient_calling/SRR7309332_TGACCA_L001_R1.fastq.gz.sam > bwa_alignment_sample_stats.out
+samtools flagstat /home/manar/ngs2_project/GATK_varient_calling/SRR7309332_TGACCA_L001_R1.fastq.gz.sam > SRR7309332_TGACCA_L001_sam_stats.out
 '''
-rename file name 
+E) rename file name 
 '''
 mv SRR7309332_TGACCA_L001_R1.fastq.gz.sam SRR7309332_TGACCA_L001.sam
 '''
