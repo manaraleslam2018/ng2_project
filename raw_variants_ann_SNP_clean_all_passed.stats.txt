@@ -1,0 +1,41 @@
+Location                     : raw_variants_ann_SNP_clean_all_passed.vcf.gz
+Failed Filters               : 0
+Passed Filters               : 16992
+
+Sample Name: SRR7309332
+SNPs                         : 4403
+MNPs                         : 0
+Insertions                   : 0
+Deletions                    : 0
+Indels                       : 0
+Same as reference            : 271
+Missing Genotype             : 12317
+Phased Genotypes             : 64.7% (3023/4674)
+SNP Transitions/Transversions: 1.73 (4905/2828)
+Total Het/Hom ratio          : 0.33 (1082/3322)
+SNP Het/Hom ratio            : 0.33 (1081/3322)
+MNP Het/Hom ratio            : - (0/0)
+Insertion Het/Hom ratio      : - (0/0)
+Deletion Het/Hom ratio       : - (0/0)
+Indel Het/Hom ratio          : - (0/0)
+Insertion/Deletion ratio     : - (0/0)
+Indel/SNP+MNP ratio          : 0.00 (0/4403)
+
+Sample Name: SRR7309338
+SNPs                         : 13002
+MNPs                         : 0
+Insertions                   : 0
+Deletions                    : 0
+Indels                       : 0
+Same as reference            : 563
+Missing Genotype             : 3426
+Phased Genotypes             : 70.9% (9617/13565)
+SNP Transitions/Transversions: 1.51 (15053/10000)
+Total Het/Hom ratio          : 0.08 (957/12046)
+SNP Het/Hom ratio            : 0.08 (956/12046)
+MNP Het/Hom ratio            : - (0/0)
+Insertion Het/Hom ratio      : - (0/0)
+Deletion Het/Hom ratio       : - (0/0)
+Indel Het/Hom ratio          : - (0/0)
+Insertion/Deletion ratio     : - (0/0)
+Indel/SNP+MNP ratio          : 0.00 (0/13002)
